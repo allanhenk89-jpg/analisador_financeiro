@@ -1,0 +1,6 @@
+seu-repositorio/
+├── financial_analyzer.py
+├── requirements.txt
+├── runtime.txt
+└── .streamlit/
+    └── config.toml
