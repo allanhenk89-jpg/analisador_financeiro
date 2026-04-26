@@ -275,8 +275,8 @@ if st.session_state.transacoes:
         
         col1, col2, col3, col4 = st.columns(4)
         with col1:
-            st.metric("💰 Saldo", f"R$ {metricas['saldo']:,.2f", 
-                     delta=f"R$ {metricas['saldo']:,.2f}" if metricas['saldo'] >= 0 else None)
+            # LINHA CORRIGIDA - removido o delta problemático
+            st.metric("💰 Saldo", f"R$ {metricas['saldo']:,.2f}")
         with col2:
             st.metric("📈 Entradas", f"R$ {metricas['entradas']:,.2f}")
         with col3:
