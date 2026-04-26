@@ -12,14 +12,14 @@ import re
 st.set_page_config(page_title="Analisador Financeiro", page_icon="💰", layout="wide")
 
 def parse_csv_content(uploaded_file):
-    """Lê CSV manualmente sem usar pandas"""
+    """Le CSV manualmente sem usar pandas"""
     content = uploaded_file.read().decode('utf-8')
     lines = content.split('\n')
     
     if not lines:
         return None
     
-    # Detecta cabeçalho
+    # Detecta cabecalho
     header = lines[0].split(',')
     header = [h.strip().lower().replace('"', '') for h in header]
     
@@ -45,7 +45,7 @@ def parse_csv_content(uploaded_file):
         if not line.strip():
             continue
         
-        # Divide CSV (simples, sem suporte a vírgulas dentro de aspas)
+        # Divide CSV (simples, sem suporte a virgulas dentro de aspas)
         parts = line.split(',')
         if len(parts) <= max(data_col, desc_col, valor_col):
             continue
@@ -98,17 +98,17 @@ def parse_csv_content(uploaded_file):
     return transactions
 
 def classificar_categoria(desc, valor):
-    """Classifica a transação baseado na descrição"""
+    """Classifica a transacao baseado na descricao"""
     desc_lower = desc.lower()
     
     categorias = {
-        '🍔 Alimentação': ['mercado', 'supermercado', 'restaurante', 'ifood', 'comida', 'padaria', 'feira', 'mcdonalds', 'burger'],
+        '🍔 Alimentacao': ['mercado', 'supermercado', 'restaurante', 'ifood', 'comida', 'padaria', 'feira', 'mcdonalds', 'burger'],
         '🚗 Transporte': ['uber', 'taxi', 'combustivel', 'gasolina', 'estacionamento', 'pedagio', '99pop'],
         '🏠 Moradia': ['aluguel', 'condominio', 'luz', 'energia', 'agua', 'gas', 'internet', 'telefone'],
-        '⚕️ Saúde': ['farmacia', 'medico', 'consulta', 'plano', 'hospital', 'dental'],
+        '⚕️ Saude': ['farmacia', 'medico', 'consulta', 'plano', 'hospital', 'dental'],
         '🎬 Lazer': ['cinema', 'netflix', 'streaming', 'show', 'viagem', 'hotel', 'hobby'],
         '🛍️ Compras': ['shopping', 'amazon', 'mercado livre', 'roupa', 'vestuario', 'magazine'],
-        '📚 Educação': ['faculdade', 'curso', 'escola', 'livro', 'material'],
+        '📚 Educacao': ['faculdade', 'curso', 'escola', 'livro', 'material'],
         '💳 Contas': ['cartao', 'boleto', 'fatura', 'seguro', 'imposto']
     }
     
@@ -126,7 +126,7 @@ def detectar_conta(filename):
     """Detecta o nome da conta pelo nome do arquivo"""
     filename_lower = filename.lower()
     bancos = {
-        'nubank': 'Nubank', 'itau': 'Itaú', 'bradesco': 'Bradesco',
+        'nubank': 'Nubank', 'itau': 'Itau', 'bradesco': 'Bradesco',
         'santander': 'Santander', 'caixa': 'Caixa', 'bb': 'Banco do Brasil',
         'inter': 'Banco Inter', 'c6': 'C6 Bank', 'next': 'Next'
     }
@@ -135,10 +135,10 @@ def detectar_conta(filename):
             return value
     return 'Outra Conta'
 
-# ========== FUNÇÕES DE ANÁLISE ==========
+# ========== FUNCOES DE ANALISE ==========
 
 def calcular_metricas(transacoes):
-    """Calcula métricas financeiras"""
+    """Calcula metricas financeiras"""
     entradas = sum(t['valor'] for t in transacoes if t['valor'] > 0)
     saidas = sum(t['valor'] for t in transacoes if t['valor'] < 0)
     return {
@@ -158,7 +158,7 @@ def agrupar_por_categoria(transacoes):
     return gastos
 
 def agrupar_por_mes(transacoes):
-    """Agrupa entradas e saídas por mês"""
+    """Agrupa entradas e saidas por mes"""
     meses = {}
     for t in transacoes:
         mes = t['mes_ano']
@@ -184,11 +184,7 @@ if 'transacoes' not in st.session_state:
 # Sidebar
 with st.sidebar:
     st.header("📤 Upload de Extratos")
-    st.info("""**Formato aceito:** CSV
-**Colunas necessárias:** Data, Descrição, Valor
-**Exemplo:** data,descricao,valor
-01/12/2024,Salário,5000
-05/12/2024,Supermercado,-350""")
+    st.info("Formato aceito: CSV. Colunas necessarias: data, descricao, valor")
     
     uploaded_files = st.file_uploader(
         "Selecione os arquivos CSV",
@@ -205,16 +201,15 @@ with st.sidebar:
                 with st.spinner(f"Processando {file.name}..."):
                     transacoes = parse_csv_content(file)
                     if transacoes and len(transacoes) > 0:
-                        # Adiciona nome da conta
                         for t in transacoes:
                             t['conta'] = nova_conta
                         st.session_state.transacoes.extend(transacoes)
-                        st.success(f"✅ {len(transacoes)} transações importadas de {nova_conta}")
+                        st.success(f"✅ {len(transacoes)} transacoes importadas de {nova_conta}")
                     else:
                         st.error(f"❌ Erro ao processar {file.name}. Verifique o formato do CSV.")
         
         if st.session_state.transacoes:
-            st.success(f"📊 Total: {len(st.session_state.transacoes)} transações")
+            st.success(f"📊 Total: {len(st.session_state.transacoes)} transacoes")
             
             col1, col2 = st.columns(2)
             with col1:
@@ -223,7 +218,6 @@ with st.sidebar:
                     st.rerun()
             with col2:
                 if st.button("📥 Exportar dados", use_container_width=True):
-                    # Cria CSV para exportar
                     output = io.StringIO()
                     writer = csv.writer(output)
                     writer.writerow(['data', 'descricao', 'conta', 'categoria', 'valor'])
@@ -242,7 +236,7 @@ with st.sidebar:
                         mime="text/csv"
                     )
 
-# Área principal
+# Area principal
 if st.session_state.transacoes:
     transacoes = st.session_state.transacoes
     
@@ -270,33 +264,30 @@ if st.session_state.transacoes:
                  and t['tipo'] in tipos_sel]
     
     if filtradas:
-        # Métricas
+        # Metricas
         metricas = calcular_metricas(filtradas)
         
         col1, col2, col3, col4 = st.columns(4)
         with col1:
-            # LINHA CORRIGIDA - removido o delta problemático
             st.metric("💰 Saldo", f"R$ {metricas['saldo']:,.2f}")
         with col2:
             st.metric("📈 Entradas", f"R$ {metricas['entradas']:,.2f}")
         with col3:
-            st.metric("📉 Saídas", f"R$ {metricas['saidas']:,.2f}")
+            st.metric("📉 Saidas", f"R$ {metricas['saidas']:,.2f}")
         with col4:
-            st.metric("📊 Transações", metricas['total_transacoes'])
+            st.metric("📊 Transacoes", metricas['total_transacoes'])
         
         st.markdown("---")
         
-        # Gráfico de evolução mensal (barras de texto)
-        st.subheader("📈 Evolução Mensal")
+        # Grafico de evolucao mensal
+        st.subheader("📈 Evolucao Mensal")
         
         meses_agrupados = agrupar_por_mes(filtradas)
         if meses_agrupados:
-            # Cria dados para o gráfico
             meses_lista = list(meses_agrupados.keys())
             entradas_lista = [meses_agrupados[m]['entradas'] for m in meses_lista]
             saidas_lista = [meses_agrupados[m]['saidas'] for m in meses_lista]
             
-            # Exibe como barras de progresso
             max_valor = max(max(entradas_lista) if entradas_lista else 0, 
                            max(saidas_lista) if saidas_lista else 0)
             
@@ -309,7 +300,7 @@ if st.session_state.transacoes:
                     st.progress(min(perc_ent/100, 1.0), text=f"{perc_ent:.0f}%")
                 with col2:
                     perc_sai = (saidas_lista[i] / max_valor * 100) if max_valor > 0 else 0
-                    st.write(f"📉 Saídas: R$ {saidas_lista[i]:,.2f}")
+                    st.write(f"📉 Saidas: R$ {saidas_lista[i]:,.2f}")
                     st.progress(min(perc_sai/100, 1.0), text=f"{perc_sai:.0f}%")
                 st.write("")
         
@@ -322,7 +313,6 @@ if st.session_state.transacoes:
         if gastos_por_cat:
             total_gastos = sum(gastos_por_cat.values())
             
-            # Ordena por valor
             for cat, valor in sorted(gastos_por_cat.items(), key=lambda x: x[1], reverse=True):
                 perc = (valor / total_gastos) * 100 if total_gastos > 0 else 0
                 col1, col2, col3 = st.columns([2, 3, 1])
@@ -333,19 +323,18 @@ if st.session_state.transacoes:
                 with col3:
                     st.write(f"R$ {valor:,.2f} ({perc:.1f}%)")
         else:
-            st.info("Nenhum gasto registrado no período.")
+            st.info("Nenhum gasto registrado no periodo.")
         
         st.markdown("---")
         
-        # Tabela de transações
-        st.subheader("📋 Transações Recentes")
+        # Tabela de transacoes
+        st.subheader("📋 Transacoes Recentes")
         
-        # Prepara dados para tabela
         tabela = []
         for t in sorted(filtradas, key=lambda x: x['data'], reverse=True)[:100]:
             tabela.append({
                 'Data': t['data'].strftime('%d/%m/%Y'),
-                'Descrição': t['descricao'][:50],
+                'Descricao': t['descricao'][:50],
                 'Conta': t['conta'],
                 'Categoria': t['categoria'],
                 'Valor': f"R$ {t['valor']:,.2f}"
@@ -375,33 +364,62 @@ if st.session_state.transacoes:
                 with col2:
                     st.write(f"📈 Entradas: R$ {dados['entradas']:,.2f}")
                 with col3:
-                    st.write(f"📉 Saídas: R$ {dados['saidas']:,.2f}")
+                    st.write(f"📉 Saidas: R$ {dados['saidas']:,.2f}")
                 with col4:
-                    st.write(f"🔄 {dados['transacoes']} transações")
+                    st.write(f"🔄 {dados['transacoes']} transacoes")
                 st.write("")
     
     else:
-        st.info("Nenhuma transação encontrada com os filtros selecionados.")
+        st.info("Nenhuma transacao encontrada com os filtros selecionados.")
 
 else:
-    st.info("👈 **Faça upload de arquivos CSV na barra lateral para começar!**")
+    st.info("👈 Faca upload de arquivos CSV na barra lateral para comecar!")
     
-    st.markdown("""
-    ### 📋 Instruções:
+    st.markdown("**Instrucoes:**")
+    st.markdown("1. Prepare seu extrato bancario em formato CSV")
+    st.markdown("2. O arquivo deve ter as colunas: data, descricao, valor")
+    st.markdown("3. Faca upload na barra lateral")
     
-    1. **Prepare seu extrato bancário em formato CSV** (pode exportar do seu banco)
-    2. **O arquivo deve ter as colunas:** `data`, `descricao`, `valor`
-    3. **Faça upload** na barra lateral
-    4. **O sistema automaticamente:**
-       - Identifica entradas (valores positivos) e saídas (valores negativos)
-       - Classifica as transações por categoria
-       - Mostra gráficos e métricas
-       - Permite filtrar por conta, mês e tipo
+    st.markdown("**Exemplo de arquivo CSV valido:**")
+    st.code("""
+data,descricao,valor
+01/12/2024,Salario,5000
+05/12/2024,Supermercado,-350
+10/12/2024,Uber,-45
+    """, language="csv")
     
-    ### 📝 Exemplo de arquivo CSV válido:
-    ```csv
-    data,descricao,valor
-    01/12/2024,Salário,5000
-    05/12/2024,Supermercado,-350
-    10/12/2024,Uber,-45
-    15/12/2024,Netflix,-39.90
+    # Botao exemplo
+    if st.button("📝 Carregar dados de exemplo", type="primary"):
+        exemplo = []
+        dados_exemplo = [
+            ('01/12/2024', 'Salario - Empresa XYZ', 5000.00),
+            ('05/12/2024', 'Supermercado Extra', -350.50),
+            ('10/12/2024', 'Uber - Viagem trabalho', -45.90),
+            ('15/12/2024', 'Netflix Assinatura', -39.90),
+            ('18/12/2024', 'Farmacia Droga Raia', -78.30),
+            ('20/12/2024', 'Aluguel', -1200.00),
+            ('25/12/2024', 'Cinema com amigos', -60.00),
+            ('28/12/2024', 'Transferencia Pix Recebida', 200.00),
+        ]
+        
+        for data_str, desc, valor in dados_exemplo:
+            data = datetime.strptime(data_str, '%d/%m/%Y')
+            tipo = 'entrada' if valor > 0 else 'saida'
+            categoria = classificar_categoria(desc, valor)
+            exemplo.append({
+                'data': data,
+                'descricao': desc,
+                'valor': valor,
+                'tipo': tipo,
+                'categoria': categoria,
+                'conta': 'Conta Exemplo',
+                'mes_ano': data.strftime('%Y-%m'),
+                'mes_nome': data.strftime('%B/%Y')
+            })
+        
+        st.session_state.transacoes = exemplo
+        st.success("✅ Dados de exemplo carregados!")
+        st.rerun()
+
+st.markdown("---")
+st.caption("Dica: Para exportar do seu banco, procure pela opcao 'Exportar como CSV' no extrato.")
